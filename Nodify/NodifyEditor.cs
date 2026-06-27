@@ -40,11 +40,11 @@ namespace Nodify
         public static readonly StyledProperty<Rect> ItemsExtentProperty = AvaloniaProperty.Register<NodifyEditor, Rect>(nameof(ItemsExtent), BoxValue.Rect);
         public static readonly StyledProperty<Rect> DecoratorsExtentProperty = AvaloniaProperty.Register<NodifyEditor, Rect>(nameof(DecoratorsExtent), BoxValue.Rect);
         public static readonly DirectProperty<NodifyEditor, bool> IsMouseCaptureWithinProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsMouseCaptureWithin), x => x.IsMouseCaptureWithin);
-        
+
         public static readonly StyledProperty<Transform> ViewportTransformProperty = AvaloniaProperty.Register<NodifyEditor, Transform>(nameof(ViewportTransform), new TransformGroup());
         /// https://github.com/AvaloniaUI/Avalonia/issues/11959 workaround
         public static readonly StyledProperty<Transform> DpiScaledViewportTransformProperty = AvaloniaProperty.Register<NodifyEditor, Transform>(nameof(DpiScaledViewportTransform), new TransformGroup());
- 
+
         #region Callbacks
 
         private static void UpdateViewportTransform(NodifyEditor editor)
@@ -54,11 +54,11 @@ namespace Nodify
             transform.Children.Add(editor.TranslateTransform);
 
             editor.SetCurrentValue(ViewportTransformProperty, transform);
-            
+
             var dpiScaledTransform = new TransformGroup();
             dpiScaledTransform.Children.Add(editor.ScaleTransform);
             dpiScaledTransform.Children.Add(editor.DpiScaledTranslateTransform);
-            
+
             editor.SetCurrentValue(DpiScaledViewportTransformProperty, dpiScaledTransform);
         }
 
@@ -95,7 +95,7 @@ namespace Nodify
 
             // once https://github.com/AvaloniaUI/Avalonia/issues/15097 is fixed, dont't create new instance
             editor.ScaleTransform = new();
-            
+
             editor.ScaleTransform.ScaleX = zoom;
             editor.ScaleTransform.ScaleY = zoom;
 
@@ -178,7 +178,7 @@ namespace Nodify
         /// Gets the transform used to offset the viewport.
         /// </summary>
         protected TranslateTransform TranslateTransform = new TranslateTransform();
-        
+
         /// https://github.com/AvaloniaUI/Avalonia/issues/11959 workaround
         protected TranslateTransform DpiScaledTranslateTransform = new TranslateTransform();
 
@@ -195,7 +195,7 @@ namespace Nodify
             get { return (Transform)GetValue(ViewportTransformProperty); }
             set { SetValue(ViewportTransformProperty, value); }
         }
-        
+
         /// https://github.com/AvaloniaUI/Avalonia/issues/11959 workaround
         /// <summary>
         /// Gets the transform that is applied to all child controls.
@@ -983,7 +983,7 @@ namespace Nodify
             AddHandler(PointerPressedEvent, OnPreviewPointerPressed, RoutingStrategies.Tunnel);
 
             UpdateViewportTransform(this);
-            
+
             _states.Push(GetInitialState());
 
             Selection.SourceReset += OnSourceReset;
@@ -1001,7 +1001,7 @@ namespace Nodify
 
             State.Enter(null, null);
         }
-        
+
         /// <inheritdoc />
         protected override DependencyObject GetContainerForItemOverride()
             => new ItemContainer(this)
@@ -1019,7 +1019,7 @@ namespace Nodify
         #region Methods
 
         internal const int MouseWheelDeltaForOneLine = 120;
-        
+
         /// <summary>
         /// Zoom in at the viewports center
         /// </summary>
@@ -1459,9 +1459,10 @@ namespace Nodify
                 for (var i = 0; i < added.Count; i++)
                 {
                     // Ensure no duplicates are added
-                    if (!selected.Contains(added[i]))
+                    object? item = added[i];
+                    if (item is not null && !selected.Contains(item))
                     {
-                        selected.Add(added[i]);
+                        selected.Add(item);
                     }
                 }
 
