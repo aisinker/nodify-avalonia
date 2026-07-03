@@ -62,9 +62,11 @@
                                        IsVisible="{TemplateBinding CanResize}">
                                     <Thumb.Template>
                                         <ControlTemplate>
-                                            <TextBlock Text="p"
-                                                       FontFamily="Marlett"
-                                                       FontSize="18" />
+                                            <PathIcon Data="M 0,100 L 100,100 L 100,0 Z"
+                                                      Width="16"
+                                                      Height="16"
+                                                      Foreground="{DynamicResource ItemContainer.BorderColor}"
+                                                      VerticalAlignment="Bottom" />
                                         </ControlTemplate>
                                     </Thumb.Template>
                                 </Thumb>
