@@ -8,7 +8,7 @@ namespace Nodify.Compatibility
     public class WpfControl : TemplatedControl
     {
         protected PointerEventArgs? currentPointerArgs;
-        
+
         protected override void OnPointerEntered(PointerEventArgs e)
         {
             currentPointerArgs = e;
@@ -18,7 +18,7 @@ namespace Nodify.Compatibility
                 base.OnPointerEntered(e);
         }
 
-        protected override  void OnPointerExited(PointerEventArgs e)
+        protected override void OnPointerExited(PointerEventArgs e)
         {
             currentPointerArgs = e;
             OnMouseLeave(e);
@@ -27,7 +27,7 @@ namespace Nodify.Compatibility
                 base.OnPointerExited(e);
         }
 
-        protected override  void OnPointerMoved(PointerEventArgs e)
+        protected override void OnPointerMoved(PointerEventArgs e)
         {
             currentPointerArgs = e;
             OnMouseMove(new MouseMoveEventArgs(e));
@@ -45,7 +45,7 @@ namespace Nodify.Compatibility
                 base.OnPointerPressed(e);
         }
 
-        protected override  void OnPointerReleased(PointerReleasedEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
             currentPointerArgs = e;
             OnMouseUp(new MouseButtonEventArgs(e));
@@ -53,7 +53,7 @@ namespace Nodify.Compatibility
             if (!e.Handled)
                 base.OnPointerReleased(e);
         }
-        
+
         protected virtual void OnMouseEnter(PointerEventArgs e)
         {
         }
@@ -77,25 +77,27 @@ namespace Nodify.Compatibility
         protected void CaptureMouseSafe()
         {
             if (currentPointerArgs == null)
-                throw new InvalidOperationException($"You may only call {nameof(ReleaseMouseCapture)} from within a {nameof(OnMouseUp)} or {nameof(OnMouseDown)} event handler.");
+                throw new InvalidOperationException(
+                    $"You may only call {nameof(ReleaseMouseCapture)} from within a {nameof(OnMouseUp)} or {nameof(OnMouseDown)} event handler.");
             currentPointerArgs.Pointer.Capture(this);
             this.PropagateMouseCapturedWithin(true);
         }
-        
+
         protected virtual void ReleaseMouseCapture()
         {
             if (currentPointerArgs == null)
-                throw new InvalidOperationException($"You may only call {nameof(ReleaseMouseCapture)} from within a {nameof(OnMouseUp)} or {nameof(OnMouseDown)} event handler.");
+                throw new InvalidOperationException(
+                    $"You may only call {nameof(ReleaseMouseCapture)} from within a {nameof(OnMouseUp)} or {nameof(OnMouseDown)} event handler.");
             currentPointerArgs.Pointer.Capture(null);
             this.PropagateMouseCapturedWithin(false);
         }
-        
+
         public bool IsMouseCaptured
         {
             get
             {
                 if (currentPointerArgs == null)
-                    throw new InvalidOperationException($"You may only call {nameof(ReleaseMouseCapture)} from within a {nameof(OnMouseUp)} or {nameof(OnMouseDown)} event handler.");
+                    return false;
 
                 return ReferenceEquals(currentPointerArgs?.Pointer.Captured, this);
             }
