@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace Nodify
 {
@@ -32,18 +22,42 @@ namespace Nodify
 
         #region Viewport
 
-        public static readonly StyledProperty<double> ViewportZoomProperty = AvaloniaProperty.Register<NodifyEditor, double>(nameof(ViewportZoom), BoxValue.Double1, defaultBindingMode: BindingMode.TwoWay, coerce: ConstrainViewportZoomToRange);
-        public static readonly StyledProperty<double> MinViewportZoomProperty = AvaloniaProperty.Register<NodifyEditor, double>(nameof(MinViewportZoom), 0.1d, coerce: CoerceMinViewportZoom);
-        public static readonly StyledProperty<double> MaxViewportZoomProperty = AvaloniaProperty.Register<NodifyEditor, double>(nameof(MaxViewportZoom), BoxValue.Double2, coerce: CoerceMaxViewportZoom);
-        public static readonly DirectProperty<NodifyEditor, Point> ViewportLocationProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, Point>(nameof(ViewportLocation), e => e.ViewportLocation, (e, v) => e.ViewportLocation = v, BoxValue.Point, defaultBindingMode: BindingMode.TwoWay);
-        public static readonly StyledProperty<Size> ViewportSizeProperty = AvaloniaProperty.Register<NodifyEditor, Size>(nameof(ViewportSize), BoxValue.Size);
-        public static readonly StyledProperty<Rect> ItemsExtentProperty = AvaloniaProperty.Register<NodifyEditor, Rect>(nameof(ItemsExtent), BoxValue.Rect);
-        public static readonly StyledProperty<Rect> DecoratorsExtentProperty = AvaloniaProperty.Register<NodifyEditor, Rect>(nameof(DecoratorsExtent), BoxValue.Rect);
-        public static readonly DirectProperty<NodifyEditor, bool> IsMouseCaptureWithinProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsMouseCaptureWithin), x => x.IsMouseCaptureWithin);
+        public static readonly StyledProperty<double> ViewportZoomProperty =
+            AvaloniaProperty.Register<NodifyEditor, double>(nameof(ViewportZoom), BoxValue.Double1,
+                defaultBindingMode: BindingMode.TwoWay, coerce: ConstrainViewportZoomToRange);
 
-        public static readonly StyledProperty<Transform> ViewportTransformProperty = AvaloniaProperty.Register<NodifyEditor, Transform>(nameof(ViewportTransform), new TransformGroup());
+        public static readonly StyledProperty<double> MinViewportZoomProperty =
+            AvaloniaProperty.Register<NodifyEditor, double>(nameof(MinViewportZoom), 0.1d,
+                coerce: CoerceMinViewportZoom);
+
+        public static readonly StyledProperty<double> MaxViewportZoomProperty =
+            AvaloniaProperty.Register<NodifyEditor, double>(nameof(MaxViewportZoom), BoxValue.Double2,
+                coerce: CoerceMaxViewportZoom);
+
+        public static readonly DirectProperty<NodifyEditor, Point> ViewportLocationProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, Point>(nameof(ViewportLocation), e => e.ViewportLocation,
+                (e, v) => e.ViewportLocation = v, BoxValue.Point, defaultBindingMode: BindingMode.TwoWay);
+
+        public static readonly StyledProperty<Size> ViewportSizeProperty =
+            AvaloniaProperty.Register<NodifyEditor, Size>(nameof(ViewportSize), BoxValue.Size);
+
+        public static readonly StyledProperty<Rect> ItemsExtentProperty =
+            AvaloniaProperty.Register<NodifyEditor, Rect>(nameof(ItemsExtent), BoxValue.Rect);
+
+        public static readonly StyledProperty<Rect> DecoratorsExtentProperty =
+            AvaloniaProperty.Register<NodifyEditor, Rect>(nameof(DecoratorsExtent), BoxValue.Rect);
+
+        public static readonly DirectProperty<NodifyEditor, bool> IsMouseCaptureWithinProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsMouseCaptureWithin),
+                x => x.IsMouseCaptureWithin);
+
+        public static readonly StyledProperty<Transform> ViewportTransformProperty =
+            AvaloniaProperty.Register<NodifyEditor, Transform>(nameof(ViewportTransform), new TransformGroup());
+
         /// https://github.com/AvaloniaUI/Avalonia/issues/11959 workaround
-        public static readonly StyledProperty<Transform> DpiScaledViewportTransformProperty = AvaloniaProperty.Register<NodifyEditor, Transform>(nameof(DpiScaledViewportTransform), new TransformGroup());
+        public static readonly StyledProperty<Transform> DpiScaledViewportTransformProperty =
+            AvaloniaProperty.Register<NodifyEditor, Transform>(nameof(DpiScaledViewportTransform),
+                new TransformGroup());
 
         #region Callbacks
 
@@ -85,7 +99,8 @@ namespace Nodify
             editor.DpiScaledTranslateTransform.Y = editor.TranslateTransform.Y * renderScale;
 
             editor.OnViewportUpdated();
-            UpdateViewportTransform(editor); // won't be required once https://github.com/AvaloniaUI/Avalonia/issues/15097 if fixed
+            UpdateViewportTransform(
+                editor); // won't be required once https://github.com/AvaloniaUI/Avalonia/issues/15097 if fixed
         }
 
         private static void OnViewportZoomChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -100,7 +115,8 @@ namespace Nodify
             editor.ScaleTransform.ScaleY = zoom;
 
             editor.ViewportSize = new Size(editor.Bounds.Width / zoom, editor.Bounds.Height / zoom);
-            UpdateViewportTransform(editor); // won't be required once https://github.com/AvaloniaUI/Avalonia/issues/15097 if fixed
+            UpdateViewportTransform(
+                editor); // won't be required once https://github.com/AvaloniaUI/Avalonia/issues/15097 if fixed
 
             editor.ApplyRenderingOptimizations();
             editor.OnViewportUpdated();
@@ -144,11 +160,14 @@ namespace Nodify
             double maximum = editor.MaxViewportZoom;
             return num > maximum ? maximum : value;
         }
+
         #endregion
 
         #region Routed Events
 
-        public static readonly RoutedEvent<RoutedEventArgs> ViewportUpdatedEvent = RoutedEvent.Register<RoutedEventArgs>(nameof(ViewportUpdated), RoutingStrategies.Bubble, typeof(NodifyEditor));
+        public static readonly RoutedEvent<RoutedEventArgs> ViewportUpdatedEvent =
+            RoutedEvent.Register<RoutedEventArgs>(nameof(ViewportUpdated), RoutingStrategies.Bubble,
+                typeof(NodifyEditor));
 
         /// <summary>
         /// Occurs whenever the viewport updates.
@@ -270,6 +289,7 @@ namespace Nodify
         }
 
         private bool isMouseCaptureWithin;
+
         /// <summary>
         /// Gets a value that indicates whether the mouse is captured to the <see cref="NodifyEditor"/>.
         /// </summary>
@@ -303,18 +323,41 @@ namespace Nodify
 
         #region Cosmetic Dependency Properties
 
-        public static readonly StyledProperty<double> BringIntoViewSpeedProperty = AvaloniaProperty.Register<NodifyEditor, double>(nameof(BringIntoViewSpeed), BoxValue.Double1000);
-        public static readonly StyledProperty<double> BringIntoViewMaxDurationProperty = AvaloniaProperty.Register<NodifyEditor, double>(nameof(BringIntoViewMaxDuration), BoxValue.Double1);
-        public static readonly StyledProperty<bool> DisplayConnectionsOnTopProperty = AvaloniaProperty.Register<NodifyEditor, bool>(nameof(DisplayConnectionsOnTop), BoxValue.False);
-        public static readonly StyledProperty<bool> DisableAutoPanningProperty = AvaloniaProperty.Register<NodifyEditor, bool>(nameof(DisableAutoPanning), BoxValue.False);
-        public static readonly StyledProperty<double> AutoPanSpeedProperty = AvaloniaProperty.Register<NodifyEditor, double>(nameof(AutoPanSpeed), 15d);
-        public static readonly StyledProperty<double> AutoPanEdgeDistanceProperty = AvaloniaProperty.Register<NodifyEditor, double>(nameof(AutoPanEdgeDistance), 15d);
-        public static readonly StyledProperty<DataTemplate> ConnectionTemplateProperty = AvaloniaProperty.Register<NodifyEditor, DataTemplate>(nameof(ConnectionTemplate));
-        public static readonly StyledProperty<DataTemplate> DecoratorTemplateProperty = AvaloniaProperty.Register<NodifyEditor, DataTemplate>(nameof(DecoratorTemplate));
-        public static readonly StyledProperty<DataTemplate> PendingConnectionTemplateProperty = AvaloniaProperty.Register<NodifyEditor, DataTemplate>(nameof(PendingConnectionTemplate));
-        public static readonly StyledProperty<ControlTheme> SelectionRectangleStyleProperty = AvaloniaProperty.Register<NodifyEditor, ControlTheme>(nameof(SelectionRectangleStyle));
-        public static readonly StyledProperty<ControlTheme> CuttingLineStyleProperty = AvaloniaProperty.Register<NodifyEditor, ControlTheme>(nameof(CuttingLineStyle));
-        public static readonly StyledProperty<ControlTheme> DecoratorContainerStyleProperty = AvaloniaProperty.Register<NodifyEditor, ControlTheme>(nameof(DecoratorContainerStyle));
+        public static readonly StyledProperty<double> BringIntoViewSpeedProperty =
+            AvaloniaProperty.Register<NodifyEditor, double>(nameof(BringIntoViewSpeed), BoxValue.Double1000);
+
+        public static readonly StyledProperty<double> BringIntoViewMaxDurationProperty =
+            AvaloniaProperty.Register<NodifyEditor, double>(nameof(BringIntoViewMaxDuration), BoxValue.Double1);
+
+        public static readonly StyledProperty<bool> DisplayConnectionsOnTopProperty =
+            AvaloniaProperty.Register<NodifyEditor, bool>(nameof(DisplayConnectionsOnTop), BoxValue.False);
+
+        public static readonly StyledProperty<bool> DisableAutoPanningProperty =
+            AvaloniaProperty.Register<NodifyEditor, bool>(nameof(DisableAutoPanning), BoxValue.False);
+
+        public static readonly StyledProperty<double> AutoPanSpeedProperty =
+            AvaloniaProperty.Register<NodifyEditor, double>(nameof(AutoPanSpeed), 15d);
+
+        public static readonly StyledProperty<double> AutoPanEdgeDistanceProperty =
+            AvaloniaProperty.Register<NodifyEditor, double>(nameof(AutoPanEdgeDistance), 15d);
+
+        public static readonly StyledProperty<DataTemplate> ConnectionTemplateProperty =
+            AvaloniaProperty.Register<NodifyEditor, DataTemplate>(nameof(ConnectionTemplate));
+
+        public static readonly StyledProperty<DataTemplate> DecoratorTemplateProperty =
+            AvaloniaProperty.Register<NodifyEditor, DataTemplate>(nameof(DecoratorTemplate));
+
+        public static readonly StyledProperty<DataTemplate> PendingConnectionTemplateProperty =
+            AvaloniaProperty.Register<NodifyEditor, DataTemplate>(nameof(PendingConnectionTemplate));
+
+        public static readonly StyledProperty<ControlTheme> SelectionRectangleStyleProperty =
+            AvaloniaProperty.Register<NodifyEditor, ControlTheme>(nameof(SelectionRectangleStyle));
+
+        public static readonly StyledProperty<ControlTheme> CuttingLineStyleProperty =
+            AvaloniaProperty.Register<NodifyEditor, ControlTheme>(nameof(CuttingLineStyle));
+
+        public static readonly StyledProperty<ControlTheme> DecoratorContainerStyleProperty =
+            AvaloniaProperty.Register<NodifyEditor, ControlTheme>(nameof(DecoratorContainerStyle));
 
         private static void OnDisableAutoPanningChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
             => ((NodifyEditor)d).OnDisableAutoPanningChanged((bool)e.NewValue);
@@ -432,19 +475,26 @@ namespace Nodify
 
         #region Readonly Dependency Properties
 
-        public static readonly DirectProperty<NodifyEditor, Rect> SelectedAreaProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, Rect>(nameof(SelectedArea), x => x.SelectedArea);
+        public static readonly DirectProperty<NodifyEditor, Rect> SelectedAreaProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, Rect>(nameof(SelectedArea), x => x.SelectedArea);
 
-        public static readonly DirectProperty<NodifyEditor, bool> IsSelectingProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsSelecting), x => x.IsSelecting);
+        public static readonly DirectProperty<NodifyEditor, bool> IsSelectingProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsSelecting), x => x.IsSelecting);
 
-        public static readonly DirectProperty<NodifyEditor, Point> CuttingLineStartProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, Point>(nameof(CuttingLineStart), x => x.CuttingLineStart);
+        public static readonly DirectProperty<NodifyEditor, Point> CuttingLineStartProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, Point>(nameof(CuttingLineStart), x => x.CuttingLineStart);
 
-        public static readonly DirectProperty<NodifyEditor, Point> CuttingLineEndProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, Point>(nameof(CuttingLineEnd), x => x.CuttingLineEnd);
+        public static readonly DirectProperty<NodifyEditor, Point> CuttingLineEndProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, Point>(nameof(CuttingLineEnd), x => x.CuttingLineEnd);
 
-        public static readonly DirectProperty<NodifyEditor, bool> IsCuttingProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsCutting), x => x.IsCutting);
+        public static readonly DirectProperty<NodifyEditor, bool> IsCuttingProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsCutting), x => x.IsCutting);
 
-        public static readonly DirectProperty<NodifyEditor, bool> IsPanningProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsPanning), x => x.IsPanning);
+        public static readonly DirectProperty<NodifyEditor, bool> IsPanningProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, bool>(nameof(IsPanning), x => x.IsPanning);
 
-        public static readonly DirectProperty<NodifyEditor, Point> MouseLocationProperty = AvaloniaProperty.RegisterDirect<NodifyEditor, Point>(nameof(MouseLocation), x => x.MouseLocation);
+        public static readonly DirectProperty<NodifyEditor, Point> MouseLocationProperty =
+            AvaloniaProperty.RegisterDirect<NodifyEditor, Point>(nameof(MouseLocation), x => x.MouseLocation);
 
         private static void OnIsSelectingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -489,6 +539,7 @@ namespace Nodify
         }
 
         private Rect selectedArea;
+
         /// <summary>
         /// Gets the currently selected area while <see cref="IsSelecting"/> is true.
         /// </summary>
@@ -499,6 +550,7 @@ namespace Nodify
         }
 
         private bool isSelecting;
+
         /// <summary>
         /// Gets a value that indicates whether a selection operation is in progress.
         /// </summary>
@@ -509,6 +561,7 @@ namespace Nodify
         }
 
         private Point cuttingLineStart;
+
         /// <summary>
         /// Gets the start point of the <see cref="CuttingLine"/> while <see cref="IsCutting"/> is true.
         /// </summary>
@@ -519,6 +572,7 @@ namespace Nodify
         }
 
         private Point cuttingLineEnd;
+
         /// <summary>
         /// Gets the end point of the <see cref="CuttingLine"/> while <see cref="IsCutting"/> is true.
         /// </summary>
@@ -529,6 +583,7 @@ namespace Nodify
         }
 
         private bool isCutting;
+
         /// <summary>
         /// Gets a value that indicates whether a cutting operation is in progress.
         /// </summary>
@@ -539,6 +594,7 @@ namespace Nodify
         }
 
         private bool isPanning;
+
         /// <summary>
         /// Gets a value that indicates whether a panning operation is in progress.
         /// </summary>
@@ -549,6 +605,7 @@ namespace Nodify
         }
 
         private Point mouseLocation;
+
         /// <summary>
         /// Gets the current mouse location in graph space coordinates (relative to the <see cref="ItemsHost" />).
         /// </summary>
@@ -567,18 +624,44 @@ namespace Nodify
 
         #region Dependency Properties
 
-        public static readonly StyledProperty<IEnumerable> ConnectionsProperty = AvaloniaProperty.Register<NodifyEditor, IEnumerable>(nameof(Connections));
-        public new static readonly StyledProperty<IList> SelectedItemsProperty = AvaloniaProperty.Register<NodifyEditor, IList>(nameof(SelectedItems));
-        public static readonly StyledProperty<IList> SelectedConnectionsProperty = AvaloniaProperty.Register<NodifyEditor, IList>(nameof(SelectedConnections));
-        public static readonly StyledProperty<object> SelectedConnectionProperty = AvaloniaProperty.Register<NodifyEditor, object>(nameof(SelectedConnection), defaultBindingMode: BindingMode.TwoWay);
-        public static readonly StyledProperty<object> PendingConnectionProperty = AvaloniaProperty.Register<NodifyEditor, object>(nameof(PendingConnection));
-        public static readonly StyledProperty<uint> GridCellSizeProperty = AvaloniaProperty.Register<NodifyEditor, uint>(nameof(GridCellSize), BoxValue.UInt1, coerce: OnCoerceGridCellSize);
-        public static readonly StyledProperty<bool> DisableZoomingProperty = AvaloniaProperty.Register<NodifyEditor, bool>(nameof(DisableZooming));
-        public static readonly StyledProperty<bool> DisablePanningProperty = AvaloniaProperty.Register<NodifyEditor, bool>(nameof(DisablePanning));
-        public static readonly StyledProperty<bool> EnableRealtimeSelectionProperty = AvaloniaProperty.Register<NodifyEditor, bool>(nameof(EnableRealtimeSelection));
-        public static readonly StyledProperty<IEnumerable> DecoratorsProperty = AvaloniaProperty.Register<NodifyEditor, IEnumerable>(nameof(Decorators));
-        public static readonly StyledProperty<bool> CanSelectMultipleConnectionsProperty = AvaloniaProperty.Register<NodifyEditor, bool>(nameof(CanSelectMultipleConnections), BoxValue.True);
-        public static readonly StyledProperty<bool> CanSelectMultipleItemsProperty = AvaloniaProperty.Register<NodifyEditor, bool>(nameof(CanSelectMultipleItems), BoxValue.True, coerce: CoerceCanSelectMultipleItems);
+        public static readonly StyledProperty<IEnumerable> ConnectionsProperty =
+            AvaloniaProperty.Register<NodifyEditor, IEnumerable>(nameof(Connections));
+
+        public new static readonly StyledProperty<IList> SelectedItemsProperty =
+            AvaloniaProperty.Register<NodifyEditor, IList>(nameof(SelectedItems));
+
+        public static readonly StyledProperty<IList> SelectedConnectionsProperty =
+            AvaloniaProperty.Register<NodifyEditor, IList>(nameof(SelectedConnections));
+
+        public static readonly StyledProperty<object> SelectedConnectionProperty =
+            AvaloniaProperty.Register<NodifyEditor, object>(nameof(SelectedConnection),
+                defaultBindingMode: BindingMode.TwoWay);
+
+        public static readonly StyledProperty<object> PendingConnectionProperty =
+            AvaloniaProperty.Register<NodifyEditor, object>(nameof(PendingConnection));
+
+        public static readonly StyledProperty<uint> GridCellSizeProperty =
+            AvaloniaProperty.Register<NodifyEditor, uint>(nameof(GridCellSize), BoxValue.UInt1,
+                coerce: OnCoerceGridCellSize);
+
+        public static readonly StyledProperty<bool> DisableZoomingProperty =
+            AvaloniaProperty.Register<NodifyEditor, bool>(nameof(DisableZooming));
+
+        public static readonly StyledProperty<bool> DisablePanningProperty =
+            AvaloniaProperty.Register<NodifyEditor, bool>(nameof(DisablePanning));
+
+        public static readonly StyledProperty<bool> EnableRealtimeSelectionProperty =
+            AvaloniaProperty.Register<NodifyEditor, bool>(nameof(EnableRealtimeSelection));
+
+        public static readonly StyledProperty<IEnumerable> DecoratorsProperty =
+            AvaloniaProperty.Register<NodifyEditor, IEnumerable>(nameof(Decorators));
+
+        public static readonly StyledProperty<bool> CanSelectMultipleConnectionsProperty =
+            AvaloniaProperty.Register<NodifyEditor, bool>(nameof(CanSelectMultipleConnections), BoxValue.True);
+
+        public static readonly StyledProperty<bool> CanSelectMultipleItemsProperty =
+            AvaloniaProperty.Register<NodifyEditor, bool>(nameof(CanSelectMultipleItems), BoxValue.True,
+                coerce: CoerceCanSelectMultipleItems);
 
         private static void OnCanSelectMultipleItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
             => ((NodifyEditor)d).CanSelectMultipleItemsBase = (bool)e.NewValue;
@@ -592,7 +675,9 @@ namespace Nodify
         private static uint OnCoerceGridCellSize(DependencyObject d, uint value)
             => (uint)value > 0u ? value : BoxValue.UInt1;
 
-        private static void OnGridCellSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) { }
+        private static void OnGridCellSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+        }
 
         private static void OnDisablePanningChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -720,16 +805,35 @@ namespace Nodify
 
         #region Command Dependency Properties
 
-        public static readonly StyledProperty<ICommand> ConnectionCompletedCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ConnectionCompletedCommand));
-        public static readonly StyledProperty<ICommand> ConnectionStartedCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ConnectionStartedCommand));
-        public static readonly StyledProperty<ICommand> DisconnectConnectorCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(DisconnectConnectorCommand));
-        public static readonly StyledProperty<ICommand> RemoveConnectionCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(RemoveConnectionCommand));
-        public static readonly StyledProperty<ICommand> ItemsDragStartedCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ItemsDragStartedCommand));
-        public static readonly StyledProperty<ICommand> ItemsDragCompletedCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ItemsDragCompletedCommand));
-        public static readonly StyledProperty<ICommand> ItemsSelectStartedCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ItemsSelectStartedCommand));
-        public static readonly StyledProperty<ICommand> ItemsSelectCompletedCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ItemsSelectCompletedCommand));
-        public static readonly StyledProperty<ICommand> CuttingStartedCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(CuttingStartedCommand));
-        public static readonly StyledProperty<ICommand> CuttingCompletedCommandProperty = AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(CuttingCompletedCommand));
+        public static readonly StyledProperty<ICommand> ConnectionCompletedCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ConnectionCompletedCommand));
+
+        public static readonly StyledProperty<ICommand> ConnectionStartedCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ConnectionStartedCommand));
+
+        public static readonly StyledProperty<ICommand> DisconnectConnectorCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(DisconnectConnectorCommand));
+
+        public static readonly StyledProperty<ICommand> RemoveConnectionCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(RemoveConnectionCommand));
+
+        public static readonly StyledProperty<ICommand> ItemsDragStartedCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ItemsDragStartedCommand));
+
+        public static readonly StyledProperty<ICommand> ItemsDragCompletedCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ItemsDragCompletedCommand));
+
+        public static readonly StyledProperty<ICommand> ItemsSelectStartedCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ItemsSelectStartedCommand));
+
+        public static readonly StyledProperty<ICommand> ItemsSelectCompletedCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(ItemsSelectCompletedCommand));
+
+        public static readonly StyledProperty<ICommand> CuttingStartedCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(CuttingStartedCommand));
+
+        public static readonly StyledProperty<ICommand> CuttingCompletedCommandProperty =
+            AvaloniaProperty.Register<NodifyEditor, ICommand>(nameof(CuttingCompletedCommand));
 
         /// <summary>
         /// Invoked when the <see cref="Nodify.PendingConnection"/> is completed. <br />
@@ -945,7 +1049,8 @@ namespace Nodify
 
         static NodifyEditor()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(NodifyEditor), new FrameworkPropertyMetadata(typeof(NodifyEditor)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(NodifyEditor),
+                new FrameworkPropertyMetadata(typeof(NodifyEditor)));
             FocusableProperty.OverrideDefaultValue<NodifyEditor>(true);
             IsSelectingProperty.Changed.AddClassHandler<NodifyEditor>(OnIsSelectingChanged);
             DisableAutoPanningProperty.Changed.AddClassHandler<NodifyEditor>(OnDisableAutoPanningChanged);
@@ -972,7 +1077,8 @@ namespace Nodify
             AddHandler(InputElement.PointerTouchPadGestureMagnifyEvent, OnPointerTouchPadGestureMagnify);
             AddHandler(Connector.DisconnectEvent, new ConnectorEventHandler(OnConnectorDisconnected));
             AddHandler(Connector.PendingConnectionStartedEvent, new PendingConnectionEventHandler(OnConnectionStarted));
-            AddHandler(Connector.PendingConnectionCompletedEvent, new PendingConnectionEventHandler(OnConnectionCompleted));
+            AddHandler(Connector.PendingConnectionCompletedEvent,
+                new PendingConnectionEventHandler(OnConnectionCompleted));
 
             AddHandler(BaseConnection.DisconnectEvent, new ConnectionEventHandler(OnRemoveConnection));
 
@@ -994,8 +1100,11 @@ namespace Nodify
         {
             base.OnApplyTemplate(e);
 
-            ItemsHost = e.NameScope.Find<ItemsPresenter>("PART_ItemsPresenter") ?? throw new InvalidOperationException($"{ElementItemsHost} is missing or is not of type Panel.");
-            ConnectionsHost = e.NameScope.Find<ItemsControl>(ElementConnectionsHost) ?? throw new InvalidOperationException($"{ElementConnectionsHost} is missing or is not of type UIElement.");
+            ItemsHost = e.NameScope.Find<ItemsPresenter>("PART_ItemsPresenter") ??
+                        throw new InvalidOperationException($"{ElementItemsHost} is missing or is not of type Panel.");
+            ConnectionsHost = e.NameScope.Find<ItemsControl>(ElementConnectionsHost) ??
+                              throw new InvalidOperationException(
+                                  $"{ElementConnectionsHost} is missing or is not of type UIElement.");
 
             OnDisableAutoPanningChanged(DisableAutoPanning);
 
@@ -1023,12 +1132,14 @@ namespace Nodify
         /// <summary>
         /// Zoom in at the viewports center
         /// </summary>
-        public void ZoomIn() => ZoomAtPosition(Math.Pow(2.0, 120.0 / 3.0 / MouseWheelDeltaForOneLine), (Point)((Vector)ViewportLocation + ViewportSize.ToVector() / 2));
+        public void ZoomIn() => ZoomAtPosition(Math.Pow(2.0, 120.0 / 3.0 / MouseWheelDeltaForOneLine),
+            (Point)((Vector)ViewportLocation + ViewportSize.ToVector() / 2));
 
         /// <summary>
         /// Zoom out at the viewports center
         /// </summary>
-        public void ZoomOut() => ZoomAtPosition(Math.Pow(2.0, -120.0 / 3.0 / MouseWheelDeltaForOneLine), (Point)((Vector)ViewportLocation + ViewportSize.ToVector() / 2));
+        public void ZoomOut() => ZoomAtPosition(Math.Pow(2.0, -120.0 / 3.0 / MouseWheelDeltaForOneLine),
+            (Point)((Vector)ViewportLocation + ViewportSize.ToVector() / 2));
 
         /// <summary>
         /// Zoom at the specified location in graph space coordinates.
@@ -1078,7 +1189,7 @@ namespace Nodify
                 double distance = (newLocation - ViewportLocation).Length();
                 double duration = distance / (BringIntoViewSpeed + (distance / 10)) * ViewportZoom;
                 duration = Math.Max(0.1, Math.Min(duration, BringIntoViewMaxDuration));
-
+                bringToViewToken?.Dispose();
                 bringToViewToken = new CancellationTokenSource();
                 this.StartAnimation(ViewportLocationProperty, newLocation, duration, bringToViewToken.Token, (s, e) =>
                 {
@@ -1176,14 +1287,12 @@ namespace Nodify
             if (shouldDisable)
             {
                 _autoPanningTimer?.Stop();
-            }
-            else if (_autoPanningTimer == null)
-            {
-                _autoPanningTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(AutoPanningTickRate),
-                    DispatcherPriority.Background, HandleAutoPanning);
+                _autoPanningTimer = null;
             }
             else
             {
+                _autoPanningTimer ??= new DispatcherTimer(TimeSpan.FromMilliseconds(AutoPanningTickRate),
+                    DispatcherPriority.Background, HandleAutoPanning);
                 _autoPanningTimer.Interval = TimeSpan.FromMilliseconds(AutoPanningTickRate);
                 _autoPanningTimer.Start();
             }
@@ -1289,6 +1398,13 @@ namespace Nodify
             }
         }
 
+        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            _autoPanningTimer?.Stop();
+            _autoPanningTimer = null;
+            base.OnDetachedFromVisualTree(e);
+        }
+
         /// <inheritdoc />
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
@@ -1311,7 +1427,13 @@ namespace Nodify
             State.HandleMouseUp(new MouseButtonEventArgs(e));
 
             // Release the mouse capture if all the mouse buttons are released
-            if (ReferenceEquals(e.Pointer.Captured, this) && e.GetCurrentPoint(this) is { Properties: { IsLeftButtonPressed: false, IsRightButtonPressed: false, IsMiddleButtonPressed: false} })
+            if (ReferenceEquals(e.Pointer.Captured, this) && e.GetCurrentPoint(this) is
+                {
+                    Properties:
+                    {
+                        IsLeftButtonPressed: false, IsRightButtonPressed: false, IsMiddleButtonPressed: false
+                    }
+                })
             {
                 e.Pointer.Capture(null);
                 this.PropagateMouseCapturedWithin(false);
@@ -1342,11 +1464,13 @@ namespace Nodify
             // Instead, only the mouse move event is raised with appropriate PointerUpdateKind
             // So here I am transforming the pointer move event to a pointer pressed event to mimic WPF
             var pointerUpdateKind = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
-            if (pointerUpdateKind is PointerUpdateKind.RightButtonPressed or PointerUpdateKind.LeftButtonPressed or PointerUpdateKind.MiddleButtonPressed)
+            if (pointerUpdateKind is PointerUpdateKind.RightButtonPressed or PointerUpdateKind.LeftButtonPressed
+                or PointerUpdateKind.MiddleButtonPressed)
             {
                 State.HandleMouseDown(new MouseButtonEventArgs(e));
             }
-            else if (pointerUpdateKind is PointerUpdateKind.RightButtonReleased or PointerUpdateKind.LeftButtonReleased or PointerUpdateKind.MiddleButtonReleased)
+            else if (pointerUpdateKind is PointerUpdateKind.RightButtonReleased or PointerUpdateKind.LeftButtonReleased
+                     or PointerUpdateKind.MiddleButtonReleased)
             {
                 State.HandleMouseUp(new MouseButtonEventArgs(e));
             }
@@ -1407,6 +1531,7 @@ namespace Nodify
                     Selection.Select(Items.IndexOf(newValue[i]));
                 }
             }
+
             EndUpdateSelectedItems();
         }
 
@@ -1433,6 +1558,7 @@ namespace Nodify
                             Selection.Select(Items.IndexOf(newItems[i]));
                         }
                     }
+
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
@@ -1444,6 +1570,7 @@ namespace Nodify
                             Selection.Deselect(Items.IndexOf(oldItems[i]));
                         }
                     }
+
                     break;
             }
         }
@@ -1497,8 +1624,10 @@ namespace Nodify
                 {
                     Selection.Deselect(i);
                 }
+
                 container.IsPreviewingSelection = null;
             }
+
             EndUpdateSelectedItems();
             IsSelecting = false;
         }
@@ -1541,6 +1670,7 @@ namespace Nodify
                     }
                 }
             }
+
             EndUpdateSelectedItems();
             IsSelecting = false;
         }
@@ -1570,6 +1700,7 @@ namespace Nodify
                     Selection.Select(i);
                 }
             }
+
             EndUpdateSelectedItems();
             IsSelecting = false;
         }
@@ -1593,6 +1724,7 @@ namespace Nodify
                     Selection.Deselect(Items.IndexOf(items[i]));
                 }
             }
+
             EndUpdateSelectedItems();
             IsSelecting = false;
         }

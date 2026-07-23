@@ -460,7 +460,7 @@ namespace Nodify
         #endregion
 
         /// <summary>
-        /// Whether to prioritize controls of type <see cref="BaseConnection"/> inside custom connections (connection wrappers) 
+        /// Whether to prioritize controls of type <see cref="BaseConnection"/> inside custom connections (connection wrappers)
         /// when setting the <see cref="IsSelectableProperty"/> and <see cref="IsSelectedProperty"/> attached properties.
         /// </summary>
         /// <remarks>
@@ -472,7 +472,7 @@ namespace Nodify
         /// Gets a vector that has its coordinates set to 0.
         /// </summary>
         protected static readonly Vector ZeroVector = new Vector(0d, 0d);
-        
+
         private Pen? _outlinePen;
 
         private ConnectionContainer? _container;
@@ -757,6 +757,7 @@ namespace Nodify
         public void StartAnimation(double duration = 1.5d)
         {
             StopAnimation();
+            animationTokenSource?.Dispose();
             animationTokenSource = new();
             this.StartLoopingAnimation(DirectionalArrowsOffsetProperty, DirectionalArrowsOffset + 1d, duration, animationTokenSource.Token);
         }
@@ -833,7 +834,7 @@ namespace Nodify
                 this.PropagateMouseCapturedWithin(false);
             }
         }
-        
+
         private Pen GetOutlinePen()
         {
             return _outlinePen ??= new Pen(OutlineBrush, StrokeThickness + OutlineThickness * 2d);
@@ -847,7 +848,7 @@ namespace Nodify
             }
 
             base.Render(drawingContext);
-        
+
             if (!string.IsNullOrEmpty(Text))
             {
                 var typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
