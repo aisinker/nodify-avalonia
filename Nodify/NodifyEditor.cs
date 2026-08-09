@@ -1402,7 +1402,31 @@ namespace Nodify
         {
             _autoPanningTimer?.Stop();
             _autoPanningTimer = null;
+            bringToViewToken?.Cancel();
+
+            // Unsubscribe from the external SelectedItems collection so a long-lived
+            // collection (e.g. owned by the view model) doesn't keep this editor alive.
+            if (SelectedItems is INotifyCollectionChanged oc)
+            {
+                oc.CollectionChanged -= OnSelectedItemsChanged;
+            }
+
             base.OnDetachedFromVisualTree(e);
+        }
+
+        /// <inheritdoc />
+        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToVisualTree(e);
+
+            // Re-subscribe when the same editor instance is re-attached to the visual tree.
+            // Remove first to stay idempotent regardless of the order in which the
+            // SelectedItems binding is applied relative to this callback.
+            if (SelectedItems is INotifyCollectionChanged nc)
+            {
+                nc.CollectionChanged -= OnSelectedItemsChanged;
+                nc.CollectionChanged += OnSelectedItemsChanged;
+            }
         }
 
         /// <inheritdoc />

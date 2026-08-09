@@ -1,9 +1,27 @@
+using System;
+
 namespace Nodify.Compatibility;
 
 // Ported from https://github.com/AvaloniaUI/AvaloniaEdit/blob/master/src/AvaloniaEdit/RoutedCommand.cs
 public class RoutedCommand : ICommand
 {
-    private static IInputElement? _focusedElement;
+    // Keep the focused element weakly: a strong static reference here would pin
+    // the last focused control (and the whole view tree that contains it) forever,
+    // even after that view is removed from the visual tree.
+    private static WeakReference<IInputElement>? _focusedElementRef;
+
+    private static IInputElement? FocusedElement
+    {
+        get
+        {
+            if (_focusedElementRef is { } reference && reference.TryGetTarget(out var element))
+            {
+                return element;
+            }
+
+            return null;
+        }
+    }
 
     public string Name { get; }
     public Type? OwnerType { get; }
@@ -37,22 +55,27 @@ public class RoutedCommand : ICommand
 
     private static void PopupIsOpenChanged(Popup popup, AvaloniaPropertyChangedEventArgs e)
     {
+        var focusedElement = FocusedElement;
         if (e.GetNewValue<bool>())
-            _focusedElement = popup;
-        else if (ReferenceEquals(_focusedElement, popup) || popup.IsVisualAncestorOf(_focusedElement as Visual))
-            _focusedElement = null;
+            _focusedElementRef = new WeakReference<IInputElement>(popup);
+        else if (ReferenceEquals(focusedElement, popup) || popup.IsVisualAncestorOf(focusedElement as Visual))
+            _focusedElementRef = null;
         CommandManager.InvalidateRequerySuggested();
     }
 
     private static void GotFocusEventHandler(Interactive focused, RoutedEventArgs e)
     {
-        _focusedElement = focused as IInputElement;
+        _focusedElementRef = focused is IInputElement inputElement
+            ? new WeakReference<IInputElement>(inputElement)
+            : null;
     }
 
     private static void LostFocusEventHandler(Interactive arg1, RoutedEventArgs arg2)
     {
-        if (ReferenceEquals(_focusedElement, arg1))
-            _focusedElement = null;
+        if (ReferenceEquals(FocusedElement, arg1))
+        {
+            _focusedElementRef = null;
+        }
     }
 
     private static void CanExecuteEventHandler(Interactive? control, CanExecuteRoutedEventArgs args)
@@ -132,7 +155,7 @@ public class RoutedCommand : ICommand
 
     bool ICommand.CanExecute(object? parameter)
     {
-        return CanExecute(parameter, _focusedElement);
+        return CanExecute(parameter, FocusedElement);
     }
 
     public static RoutedEvent<ExecutedRoutedEventArgs> ExecutedEvent { get; }
@@ -149,7 +172,7 @@ public class RoutedCommand : ICommand
 
     void ICommand.Execute(object? parameter)
     {
-        Execute(parameter, _focusedElement);
+        Execute(parameter, FocusedElement);
     }
 
     public event EventHandler? CanExecuteChanged

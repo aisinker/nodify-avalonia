@@ -1,15 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
 namespace Nodify
 {
     internal partial class ConnectionsMultiSelector : MultiSelector
     {
-        public new static readonly StyledProperty<IList> SelectedItemsProperty = NodifyEditor.SelectedItemsProperty.AddOwner<ConnectionsMultiSelector>();
-        public static readonly StyledProperty<bool> CanSelectMultipleItemsProperty = NodifyEditor.CanSelectMultipleItemsProperty.AddOwner<ConnectionsMultiSelector>(new StyledPropertyMetadata<bool>(true, coerce: CoerceCanSelectMultipleItems));
+        public new static readonly StyledProperty<IList> SelectedItemsProperty =
+            NodifyEditor.SelectedItemsProperty.AddOwner<ConnectionsMultiSelector>();
+
+        public static readonly StyledProperty<bool> CanSelectMultipleItemsProperty =
+            NodifyEditor.CanSelectMultipleItemsProperty.AddOwner<ConnectionsMultiSelector>(
+                new StyledPropertyMetadata<bool>(true, coerce: CoerceCanSelectMultipleItems));
 
         private static void OnCanSelectMultipleItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
             => ((ConnectionsMultiSelector)d).CanSelectMultipleItemsBase = (bool)e.NewValue;
@@ -75,6 +76,7 @@ namespace Nodify
                     selectedItems.Add(newValue[i]);
                 }
             }
+
             EndUpdateSelectedItems();
         }
 
@@ -99,6 +101,7 @@ namespace Nodify
                             selectedItems.Add(newItems[i]);
                         }
                     }
+
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
@@ -111,6 +114,7 @@ namespace Nodify
                             selectedItems.Remove(oldItems[i]);
                         }
                     }
+
                     break;
             }
         }
@@ -137,6 +141,34 @@ namespace Nodify
                 {
                     selected.Remove(removed[i]);
                 }
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            // Unsubscribe from the external SelectedItems collection so a long-lived
+            // collection (e.g. owned by the view model) doesn't keep this control alive.
+            if (SelectedItems is INotifyCollectionChanged oc)
+            {
+                oc.CollectionChanged -= OnSelectedItemsChanged;
+            }
+
+            base.OnDetachedFromVisualTree(e);
+        }
+
+        /// <inheritdoc />
+        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToVisualTree(e);
+
+            // Re-subscribe when the same control instance is re-attached to the visual tree.
+            // Remove first to stay idempotent regardless of the order in which the
+            // SelectedItems binding is applied relative to this callback.
+            if (SelectedItems is INotifyCollectionChanged nc)
+            {
+                nc.CollectionChanged -= OnSelectedItemsChanged;
+                nc.CollectionChanged += OnSelectedItemsChanged;
             }
         }
     }

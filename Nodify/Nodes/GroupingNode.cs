@@ -70,7 +70,7 @@ namespace Nodify
         public static readonly StyledProperty<GroupingMovementMode> MovementModeProperty = AvaloniaProperty.Register<GroupingNode, GroupingMovementMode>(nameof(MovementMode), GroupMovementBoxed);
         public static readonly StyledProperty<ICommand> ResizeCompletedCommandProperty = AvaloniaProperty.Register<GroupingNode, ICommand>(nameof(ResizeCompletedCommand));
         public static readonly StyledProperty<ICommand> ResizeStartedCommandProperty = AvaloniaProperty.Register<GroupingNode, ICommand>(nameof(ResizeStartedCommand));
-        
+
         private static void OnActualSizeChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
         {
             var node = (GroupingNode)d;
@@ -216,6 +216,7 @@ namespace Nodify
                 HeaderControl.PointerPressed -= OnHeaderMouseDown;
                 HeaderControl.SizeChanged -= OnHeaderSizeChanged;
             }
+            Editor = null;
         }
 
         private void OnHeaderMouseDown(object? sender, PointerPressedEventArgs e)

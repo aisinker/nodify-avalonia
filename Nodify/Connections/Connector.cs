@@ -1,8 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-
-namespace Nodify
+﻿namespace Nodify
 {
     /// <summary>
     /// Represents a connector control that can start and complete a <see cref="PendingConnection"/>.
@@ -15,10 +11,20 @@ namespace Nodify
 
         #region Routed Events
 
-        public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionStartedEvent = RoutedEvent.Register<PendingConnectionEventArgs>(nameof(PendingConnectionStarted), RoutingStrategies.Bubble, typeof(Connector));
-        public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionCompletedEvent = RoutedEvent.Register<PendingConnectionEventArgs>(nameof(PendingConnectionCompleted), RoutingStrategies.Bubble, typeof(Connector));
-        public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionDragEvent = RoutedEvent.Register<PendingConnectionEventArgs>(nameof(PendingConnectionDrag), RoutingStrategies.Bubble, typeof(Connector));
-        public static readonly RoutedEvent<ConnectorEventArgs> DisconnectEvent = RoutedEvent.Register<ConnectorEventArgs>(nameof(Disconnect), RoutingStrategies.Bubble, typeof(Connector));
+        public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionStartedEvent =
+            RoutedEvent.Register<PendingConnectionEventArgs>(nameof(PendingConnectionStarted), RoutingStrategies.Bubble,
+                typeof(Connector));
+
+        public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionCompletedEvent =
+            RoutedEvent.Register<PendingConnectionEventArgs>(nameof(PendingConnectionCompleted),
+                RoutingStrategies.Bubble, typeof(Connector));
+
+        public static readonly RoutedEvent<PendingConnectionEventArgs> PendingConnectionDragEvent =
+            RoutedEvent.Register<PendingConnectionEventArgs>(nameof(PendingConnectionDrag), RoutingStrategies.Bubble,
+                typeof(Connector));
+
+        public static readonly RoutedEvent<ConnectorEventArgs> DisconnectEvent =
+            RoutedEvent.Register<ConnectorEventArgs>(nameof(Disconnect), RoutingStrategies.Bubble, typeof(Connector));
 
         /// <summary>Triggered by the <see cref="EditorGestures.ConnectorGestures.Connect"/> gesture.</summary>
         public event PendingConnectionEventHandler PendingConnectionStarted
@@ -54,13 +60,20 @@ namespace Nodify
 
         #region Dependency Properties
 
-        public static readonly StyledProperty<Point> AnchorProperty = AvaloniaProperty.Register<Connector, Point>(nameof(Anchor), BoxValue.Point);
-        public static readonly StyledProperty<bool> IsConnectedProperty = AvaloniaProperty.Register<Connector, bool>(nameof(IsConnected), BoxValue.False);
-        public static readonly StyledProperty<ICommand> DisconnectCommandProperty = AvaloniaProperty.Register<Connector, ICommand>(nameof(DisconnectCommand));
-        public static readonly DirectProperty<Connector, bool> IsPendingConnectionProperty = AvaloniaProperty.RegisterDirect<Connector, bool>(nameof(IsPendingConnection), x => x.IsPendingConnection);
+        public static readonly StyledProperty<Point> AnchorProperty =
+            AvaloniaProperty.Register<Connector, Point>(nameof(Anchor), BoxValue.Point);
+
+        public static readonly StyledProperty<bool> IsConnectedProperty =
+            AvaloniaProperty.Register<Connector, bool>(nameof(IsConnected), BoxValue.False);
+
+        public static readonly StyledProperty<ICommand> DisconnectCommandProperty =
+            AvaloniaProperty.Register<Connector, ICommand>(nameof(DisconnectCommand));
+
+        public static readonly DirectProperty<Connector, bool> IsPendingConnectionProperty =
+            AvaloniaProperty.RegisterDirect<Connector, bool>(nameof(IsPendingConnection), x => x.IsPendingConnection);
 
         /// <summary>
-        /// Gets the location where <see cref="Connection"/>s can be attached to. 
+        /// Gets the location where <see cref="Connection"/>s can be attached to.
         /// Bind with <see cref="System.Windows.Data.BindingMode.OneWayToSource"/>
         /// </summary>
         public Point Anchor
@@ -79,6 +92,7 @@ namespace Nodify
         }
 
         private bool isPendingConnection;
+
         /// <summary>
         /// Gets a value that indicates whether a <see cref="PendingConnection"/> is in progress for this <see cref="Connector"/>.
         /// </summary>
@@ -102,7 +116,8 @@ namespace Nodify
 
         static Connector()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(Connector), new FrameworkPropertyMetadata(typeof(Connector)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(Connector),
+                new FrameworkPropertyMetadata(typeof(Connector)));
             FocusableProperty.OverrideDefaultValue<Connector>(true);
             IsConnectedProperty.Changed.AddClassHandler<Connector>(OnIsConnectedChanged);
         }
@@ -165,6 +180,9 @@ namespace Nodify
             Container = this.GetParentOfType<ItemContainer>();
             Editor = Container?.Editor ?? this.GetParentOfType<NodifyEditor>();
 
+            // Remove first so re-applying the template doesn't accumulate subscriptions.
+            Loaded -= OnConnectorLoaded;
+            Unloaded -= OnConnectorUnloaded;
             Loaded += OnConnectorLoaded;
             Unloaded += OnConnectorUnloaded;
         }
@@ -220,7 +238,7 @@ namespace Nodify
         /// <inheritdoc />
         protected override void OnSizeChanged(SizeChangedInfo sizeInfo)
         {
-            // Subscribe to events if not already subscribed 
+            // Subscribe to events if not already subscribed
             // Useful for advanced connectors that start collapsed because the loaded event is not called
             Size newSize = sizeInfo.NewSize;
             if (newSize.Width > 0d || newSize.Height > 0d)
@@ -239,7 +257,8 @@ namespace Nodify
 
         private void OnViewportUpdated(object? sender, RoutedEventArgs args)
         {
-            if (Container != null && !Container.IsPreviewingLocation && _lastUpdatedContainerPosition != Container.Location)
+            if (Container != null && !Container.IsPreviewingLocation &&
+                _lastUpdatedContainerPosition != Container.Location)
             {
                 UpdateAnchorOptimized(Container.Location);
             }
@@ -292,9 +311,12 @@ namespace Nodify
             if (Thumb != null && Container != null)
             {
                 var thumbSize = Thumb.Bounds.Size.ToVector() /*RenderSize*/;
-                Vector containerMargin = Container.Bounds.Size.ToVector() /*RenderSize */ - Container.DesiredSize.ToVector();
-                Point relativeLocation = Thumb.TranslatePoint((Point)(thumbSize / 2 - containerMargin / 2), Container) ?? default;
-                SetCurrentValue(AnchorProperty, new Point(location.X + relativeLocation.X, location.Y + relativeLocation.Y));
+                Vector containerMargin =
+                    Container.Bounds.Size.ToVector() /*RenderSize */ - Container.DesiredSize.ToVector();
+                Point relativeLocation =
+                    Thumb.TranslatePoint((Point)(thumbSize / 2 - containerMargin / 2), Container) ?? default;
+                SetCurrentValue(AnchorProperty,
+                    new Point(location.X + relativeLocation.X, location.Y + relativeLocation.Y));
             }
         }
 
@@ -321,6 +343,7 @@ namespace Nodify
                 ignoreNextOnPointerCaptureLost = false;
                 return;
             }
+
             // Always cancel if lost capture
             OnConnectorDragCompleted(cancel: true, null);
         }
@@ -366,7 +389,8 @@ namespace Nodify
                 OnConnectorDragCompleted(e: e);
                 e.Handled = true;
             }
-            else if (AllowPendingConnectionCancellation && IsPendingConnection && gestures.CancelAction.Matches(e.Source, e))
+            else if (AllowPendingConnectionCancellation && IsPendingConnection &&
+                     gestures.CancelAction.Matches(e.Source, e))
             {
                 // Cancel pending connection
                 OnConnectorDragCompleted(cancel: true, e: e);
@@ -382,7 +406,7 @@ namespace Nodify
                 ReleaseMouseCapture();
                 releaseMouseCapture = true;
             }
-            
+
             // Avalonia hack: Avalonia contrary to WPF automatically releases mouse capture on mouse up
             // and there is no way to prevent it. So we need to capture it again if we are still dragging
             if (!releaseMouseCapture && EnableStickyConnections && IsPendingConnection)
@@ -390,7 +414,11 @@ namespace Nodify
                 ignoreNextOnPointerCaptureLost = true;
                 Dispatcher.UIThread.Post(() =>
                 {
-                    capturedMouse = e.Capture(this);
+                    if (this.IsAttachedToVisualTree())
+                    {
+                        capturedMouse = e.Capture(this);
+                    }
+
                     ignoreNextOnPointerCaptureLost = false;
                 });
             }
@@ -399,7 +427,8 @@ namespace Nodify
         /// <inheritdoc />
         protected override void OnKeyUp(KeyEventArgs e)
         {
-            if (AllowPendingConnectionCancellation && EditorGestures.Mappings.Connector.CancelAction.Matches(e.Source, e))
+            if (AllowPendingConnectionCancellation &&
+                EditorGestures.Mappings.Connector.CancelAction.Matches(e.Source, e))
             {
                 // Cancel pending connection
                 OnConnectorDragCompleted(cancel: true);
@@ -458,7 +487,10 @@ namespace Nodify
         {
             if (IsPendingConnection)
             {
-                FrameworkElement? elem = Editor != null ? PendingConnection.GetPotentialConnector(Editor, PendingConnection.GetAllowOnlyConnectorsAttached(Editor), e) : null;
+                FrameworkElement? elem = Editor != null
+                    ? PendingConnection.GetPotentialConnector(Editor,
+                        PendingConnection.GetAllowOnlyConnectorsAttached(Editor), e)
+                    : null;
 
                 var args = new PendingConnectionEventArgs(DataContext, e)
                 {
